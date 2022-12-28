@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,19 +18,36 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier, color = MaterialTheme.colors.background) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = Color.Blue)
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text("Hello")
-                        Text("World")
-                    }
+//            MyApplicationTheme {
+//                // A surface container using the 'background' color from the theme
+//                Surface(modifier = Modifier, color = MaterialTheme.colors.background) {
+//                    Column(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .background(color = Color.Blue)
+//                            .padding(16.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                    ) {
+//                        Text("Hello")
+//                        Text("World")
+//                    }
+//                }
+//            }
+            Box(
+                modifier = Modifier
+                    .background(color = Color.Green)
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Text(text = "Hello")
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    Text(text = "Hello", modifier = Modifier.padding(start = 20.dp))
                 }
             }
         }
@@ -40,13 +55,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greetings(name: String){
+fun Greetings(name: String) {
     Text(text = name)
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingsPreview(){
+fun GreetingsPreview() {
     MyApplicationTheme {
         Greetings(name = "Android")
     }
@@ -54,7 +69,7 @@ fun GreetingsPreview(){
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingsPreview2(){
+fun GreetingsPreview2() {
     MyApplicationTheme {
         Greetings(name = "Android123")
     }
