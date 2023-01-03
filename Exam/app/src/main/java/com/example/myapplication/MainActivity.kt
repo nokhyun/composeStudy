@@ -6,26 +6,25 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageCard(
@@ -66,21 +65,56 @@ fun ImageCard(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var isFavorite by rememberSaveable { mutableStateOf(false) }
+//            var textValue by remember { mutableStateOf("") }
+            val (textValue, setValue) = remember { mutableStateOf("") }
 
-            ImageCard(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .padding(16.dp),
-                isFavorite
+            val scaffoldState = rememberScaffoldState()
+            val scope = rememberCoroutineScope()
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            Scaffold(
+                scaffoldState = scaffoldState
             ) {
-                isFavorite = it
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TextField(
+                        value = textValue,
+                        onValueChange = setValue,
+                        placeholder = { Text(text = "힌트다!") },
+                        label = { Text(text = "label")}
+                    )
+                    Button(onClick = {
+                        keyboardController?.hide()
+                        scope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar("Hello $textValue")
+                        }
+                    }) {
+                        Text(text = "클릭")
+                    }
+                }
             }
         }
+
+//        setContent {
+//            var isFavorite by rememberSaveable { mutableStateOf(false) }
+//
+//            ImageCard(
+//                modifier = Modifier
+//                    .fillMaxWidth(0.5f)
+//                    .padding(16.dp),
+//                isFavorite
+//            ) {
+//                isFavorite = it
+//            }
+//        }
 
 //        setContent {
 ////            MyApplicationTheme {
