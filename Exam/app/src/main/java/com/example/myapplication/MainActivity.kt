@@ -13,18 +13,20 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun ImageCard(
@@ -65,43 +67,118 @@ fun ImageCard(
     }
 }
 
+@Composable
+fun FirstScreen(navController: NavController) {
+    val (value, setValue) = remember {
+        mutableStateOf("")
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "첫화면")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { navController.navigate("second") }) {
+            Text(text = "두 번째!")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        TextField(value = value, onValueChange = setValue)
+        Button(onClick = {
+            if (value.isNotEmpty()) {
+                navController.navigate("third/$value")
+            }
+        }) {
+            Text(text = "세 번째!")
+        }
+    }
+}
+
+@Composable
+fun SecondScreen(navController: NavHostController) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "두 번째 화면")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { navController.navigateUp() }) {
+            Text(text = "뒤로 가기!")
+        }
+    }
+}
+
+@Composable
+fun ThirdScreen(navController: NavHostController, value: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "세 번째 화면")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = value)
+        Button(onClick = { navController.navigateUp() }) {
+            Text(text = "뒤로 가기!")
+        }
+    }
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-//            var textValue by remember { mutableStateOf("") }
-            val (textValue, setValue) = remember { mutableStateOf("") }
-
-            val scaffoldState = rememberScaffoldState()
-            val scope = rememberCoroutineScope()
-            val keyboardController = LocalSoftwareKeyboardController.current
-
-            Scaffold(
-                scaffoldState = scaffoldState
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    TextField(
-                        value = textValue,
-                        onValueChange = setValue,
-                        placeholder = { Text(text = "힌트다!") },
-                        label = { Text(text = "label")}
-                    )
-                    Button(onClick = {
-                        keyboardController?.hide()
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Hello $textValue")
-                        }
-                    }) {
-                        Text(text = "클릭")
-                    }
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = "first") {
+                composable("first") {
+                    FirstScreen(navController)
+                }
+                composable("second") {
+                    SecondScreen(navController)
+                }
+                composable("third/{value}") {
+                    ThirdScreen(navController, it.arguments?.getString("value") ?: "")
                 }
             }
+
         }
+
+//        setContent {
+////            var textValue by remember { mutableStateOf("") }
+//            val (textValue, setValue) = remember { mutableStateOf("") }
+//
+//            val scaffoldState = rememberScaffoldState()
+//            val scope = rememberCoroutineScope()
+//            val keyboardController = LocalSoftwareKeyboardController.current
+//
+//            Scaffold(
+//                scaffoldState = scaffoldState
+//            ) {
+//                Column(
+//                    modifier = Modifier.fillMaxSize(),
+//                    verticalArrangement = Arrangement.Center,
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    TextField(
+//                        value = textValue,
+//                        onValueChange = setValue,
+//                        placeholder = { Text(text = "힌트다!") },
+//                        label = { Text(text = "label")}
+//                    )
+//                    Button(onClick = {
+//                        keyboardController?.hide()
+//                        scope.launch {
+//                            scaffoldState.snackbarHostState.showSnackbar("Hello $textValue")
+//                        }
+//                    }) {
+//                        Text(text = "클릭")
+//                    }
+//                }
+//            }
+//        }
 
 //        setContent {
 //            var isFavorite by rememberSaveable { mutableStateOf(false) }
