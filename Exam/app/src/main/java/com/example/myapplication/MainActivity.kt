@@ -2,7 +2,9 @@ package com.example.myapplication
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,12 +24,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageCard(
@@ -128,23 +135,97 @@ fun ThirdScreen(navController: NavHostController, value: String) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 class MainActivity : ComponentActivity() {
+
+    private val testFlow = MutableSharedFlow<Long>(2)
+
+//    private val viewModel by viewModels<MainViewModel>()
+
+    val testflow1 = callbackFlow<Long> {
+        send(System.currentTimeMillis())
+
+        awaitClose()
+    }.buffer(2)
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = "first") {
-                composable("first") {
-                    FirstScreen(navController)
-                }
-                composable("second") {
-                    SecondScreen(navController)
-                }
-                composable("third/{value}") {
-                    ThirdScreen(navController, it.arguments?.getString("value") ?: "")
+
+        this.onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                lifecycleScope.launch {
+                    launch {
+                        testFlow.emit(System.currentTimeMillis())
+                    }
                 }
             }
+        })
 
+//        val timeOut = 2000L
+//        var backWait = 0L
+//        lifecycleScope.launch {
+//            launch {
+//                testflow1.collectLatest {
+//                    Log.e(this.javaClass.simpleName, "asda: $it")
+//                }
+//            }
+//            launch {
+//                testFlow
+//                    .subscriptionCount
+//                    .onEach {
+//                        Toast.makeText(this@MainActivity, "Hi", Toast.LENGTH_SHORT).show()
+//                    }
+//                    .map {
+//                        Log.e(this.javaClass.simpleName, "map: ${it}")
+//                        it
+//                    }
+//                    .collect {
+//                        Log.e(this.javaClass.simpleName, "asdasd: ${it}")
+////                    if(it + timeOut >= System.currentTimeMillis()) finish()
+//
+//
+////                    if (System.currentTimeMillis() - backWait >= timeOut) {
+////                    if (backWait + timeOut <= System.currentTimeMillis()) {
+////                    if (backWait + timeOut <= System.currentTimeMillis()) {
+////                        backWait = System.currentTimeMillis()
+////                    } else {
+////                        finish()
+////                    }
+//                    }
+//            }
+//        }
+
+        setContent {
+            val viewModel = viewModel<MainViewModel>()
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = viewModel.data.value,
+                    fontSize = 30.sp
+                )
+                Button(onClick = { viewModel.changeValue() }) {
+                    Text(text = "변경")
+                }
+            }
         }
+
+//        setContent {
+//            val navController = rememberNavController()
+//            NavHost(navController = navController, startDestination = "first") {
+//                composable("first") {
+//                    FirstScreen(navController)
+//                }
+//                composable("second") {
+//                    SecondScreen(navController)
+//                }
+//                composable("third/{value}") {
+//                    ThirdScreen(navController, it.arguments?.getString("value") ?: "")
+//                }
+//            }
+//
+//        }
 
 //        setContent {
 ////            var textValue by remember { mutableStateOf("") }
@@ -277,5 +358,14 @@ fun GreetingsPreview() {
 fun GreetingsPreview2() {
     MyApplicationTheme {
         Greetings(name = "Android123")
+    }
+}
+
+class MainViewModel : ViewModel() {
+    private val _data = mutableStateOf("Hello")
+    val data: State<String> = _data
+
+    fun changeValue(){
+        _data.value = "World"
     }
 }
