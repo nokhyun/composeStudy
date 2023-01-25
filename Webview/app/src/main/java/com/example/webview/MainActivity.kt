@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,15 +102,18 @@ fun MyWebView(
     viewModel: MainViewModel,
     scaffoldState: ScaffoldState
 ) {
+
+    val scope = rememberCoroutineScope()
     val webView = rememberWebView()
 
-    LaunchedEffect(Unit) {
-        viewModel.undoSharedFlow.collectLatest {
-            if (webView.canGoBack()) webView.goBack() else scaffoldState.snackbarHostState.showSnackbar("더 이상 뒤로 갈 수 없음")
-        }
-    }
+//    LaunchedEffect(scaffoldState.snackbarHostState) {
+//        viewModel.undoSharedFlow.collectLatest {
+//            if (webView.canGoBack()) webView.goBack() else scaffoldState.snackbarHostState.showSnackbar("더 이상 뒤로 갈 수 없음")
+//        }
+//    }
 
-    LaunchedEffect(Unit) {
+    // 상태가 변화가 있으면 기존에 있던 작업내역을 날리고 마지막 작업만 실행함.
+    LaunchedEffect(scaffoldState.snackbarHostState) {
         viewModel.redoSharedFlow.collectLatest {
             if (webView.canGoForward()) webView.goForward() else scaffoldState.snackbarHostState.showSnackbar("더 이상 앞으로 갈 수 없음")
         }
@@ -122,6 +126,12 @@ fun MyWebView(
         },
         update = { webview ->
             webview.loadUrl(viewModel.url.value)
+            scope.launch {
+                // 여러번 클릭 시 스낵바의 상태변화와 상관없이 작업내역을 전부 쌓아두고 실행(Queue)
+                viewModel.undoSharedFlow.collectLatest {
+                    if (webView.canGoBack()) webView.goBack() else scaffoldState.snackbarHostState.showSnackbar("더 이상 뒤로 갈 수 없음")
+                }
+            }
         }
     )
 }
