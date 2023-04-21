@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- api 25 이상부터 사용가능 -->
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutDisabledMessage="@string/shortcut_disabled_message"
+        android:shortcutId="second"
+        android:shortcutLongLabel="@string/shortcut_long_label1"
+        android:shortcutShortLabel="@string/shortcut_short_label1"
+        tools:targetApi="n_mr1">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.example.ui.SecondActivity"
+            android:targetPackage="com.example.ui" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutDisabledMessage="@string/shortcut_disabled_message2"
+        android:shortcutId="main"
+        android:shortcutLongLabel="@string/shortcut_long_label2"
+        android:shortcutShortLabel="@string/shortcut_short_label2"
+        tools:targetApi="n_mr1">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.example.ui.MainActivity"
+            android:targetPackage="com.example.ui" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+</shortcuts>

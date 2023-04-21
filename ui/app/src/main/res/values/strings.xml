@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">ui</string>
+
+    <!-- shortcut -->
+    <string name="shortcut_short_label1">홀리</string>
+    <string name="shortcut_long_label1">나이트</string>
+    <string name="shortcut_disabled_message">이것은 무엇</string>
+
+    <string name="shortcut_short_label2">홀리2</string>
+    <string name="shortcut_long_label2">나이트2</string>
+    <string name="shortcut_disabled_message2">이것은 무엇2</string>
+
+
+    <string name="home">홈</string>
+    <string name="second">둘</string>
+</resources>
